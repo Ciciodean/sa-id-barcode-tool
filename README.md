@@ -1,4 +1,4 @@
-# 🇿🇦 SA Smart ID Barcode Tool — Test Specimens (Code 39 + PDF417)
+# ✨ VisualArc Editing — SA ID Barcode Studio (Code 39 + PDF417)
 
 Generate **test/specimen** barcodes in the style of the back of the South African **Smart ID Card**:
 

@@ -30,50 +30,99 @@ PAGE = r"""<!DOCTYPE html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SA Smart ID Barcode Tool — Test Specimens (Code 39 + PDF417)</title>
+<title>VisualArc Editing — SA ID Barcode Studio (Code 39 + PDF417)</title>
 <style>
-  :root { --green:#007749; --gold:#FCB514; --red:#DE3831; --black:#111; --bg:#f4f6f5; --card:#fff; }
+  :root, [data-theme="heritage"] {
+    --bg:#f4f6f5; --card:#fff; --ink:#222; --muted:#666;
+    --accent:#007749; --accent-dark:#005a38; --accent-soft:#e7f4ec;
+    --gold:#FCB514; --red:#DE3831; --ok:#007749;
+    --head-grad:linear-gradient(135deg,#007749 0%,#005a38 60%,#111 100%);
+    --input-bg:#fff; --input-border:#c9d2cd;
+    --ghost-bg:#eef2f0; --ghost-ink:#222;
+    --detail-bg:#f8faf9; --warn-bg:#fff8e1;
+    --dl-bg:#111; --dl-ink:#fff;
+  }
+  [data-theme="light"] {
+    --bg:#f2f6ff; --card:#ffffff; --ink:#1c2b4a; --muted:#5b6b8c;
+    --accent:#0b5fff; --accent-dark:#0849c4; --accent-soft:#e3edff;
+    --gold:#ffb020; --red:#d92d20; --ok:#067647;
+    --head-grad:linear-gradient(135deg,#0b5fff,#062a78);
+    --input-bg:#fff; --input-border:#c3d0e8;
+    --ghost-bg:#e9eefb; --ghost-ink:#1c2b4a;
+    --detail-bg:#f5f8ff; --warn-bg:#fffaeb;
+    --dl-bg:#101828; --dl-ink:#fff;
+  }
+  [data-theme="dark"] {
+    --bg:#101413; --card:#1a201e; --ink:#e9f0eb; --muted:#9aa8a1;
+    --accent:#2fbf71; --accent-dark:#7fe0a8; --accent-soft:#14352a;
+    --gold:#FCB514; --red:#ff6b61; --ok:#4ade80;
+    --head-grad:linear-gradient(135deg,#0b3b26,#0d1512);
+    --input-bg:#121715; --input-border:#39443f;
+    --ghost-bg:#242c29; --ghost-ink:#e9f0eb;
+    --detail-bg:#161c1a; --warn-bg:#2a2410;
+    --dl-bg:#e9f0eb; --dl-ink:#101413;
+  }
+  [data-theme="ocean"] {
+    --bg:#eef7f7; --card:#ffffff; --ink:#123338; --muted:#4f6b70;
+    --accent:#0e7c86; --accent-dark:#0a5c64; --accent-soft:#dcf0f2;
+    --gold:#f5a623; --red:#d92d20; --ok:#0e7c86;
+    --head-grad:linear-gradient(135deg,#0e7c86,#083f46);
+    --input-bg:#fff; --input-border:#bcd6d9;
+    --ghost-bg:#e2eff0; --ghost-ink:#123338;
+    --detail-bg:#f2f9fa; --warn-bg:#fffaeb;
+    --dl-bg:#083f46; --dl-ink:#fff;
+  }
   * { box-sizing:border-box; }
-  body { margin:0; font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; background:var(--bg); color:#222; }
-  header { background:linear-gradient(135deg,#007749 0%,#005a38 60%,#111 100%); color:#fff; padding:22px 16px; }
+  body { margin:0; font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; background:var(--bg); color:var(--ink); }
+  header { background:var(--head-grad); color:#fff; padding:22px 16px; }
   header .wrap, main.wrap { max-width:1080px; margin:0 auto; }
   header h1 { margin:0 0 6px; font-size:22px; }
   header p { margin:0; opacity:.92; font-size:14px; max-width:70ch; }
+  .themes { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; align-items:center; }
+  .themes button { background:rgba(255,255,255,.14); color:#fff; border:1px solid rgba(255,255,255,.45); padding:7px 13px; font-size:12.5px; border-radius:20px; font-weight:700; cursor:pointer; }
+  .themes button.active { background:#fff; color:#111; border-color:#fff; }
   .flagbar { height:6px; background:linear-gradient(90deg,#DE3831 0 20%,#fff 20% 24%,#002395 24% 44%,#fff 44% 48%,#007749 48% 68%,#FCB514 68% 72%,#111 72% 100%); }
-  .warn { background:#fff8e1; border:2px solid var(--gold); border-radius:10px; padding:10px 14px; margin:14px 0; font-size:13.5px; }
+  .warn { background:var(--warn-bg); border:2px solid var(--gold); border-radius:10px; padding:10px 14px; margin:14px 0; font-size:13.5px; }
   .grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
   @media (max-width:900px){ .grid{grid-template-columns:1fr;} }
   .card { background:var(--card); border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,.07); padding:18px; }
-  .card h2 { margin:0 0 12px; font-size:17px; color:#005a38; }
-  label { display:block; font-size:12.5px; font-weight:600; margin:10px 0 4px; color:#333; }
-  input, select, textarea { width:100%; padding:9px 10px; border:1px solid #c9d2cd; border-radius:8px; font-size:14px; }
-  input:focus, select:focus, textarea:focus { outline:2px solid #00774955; border-color:#007749; }
+  .card h2 { margin:0 0 12px; font-size:17px; color:var(--accent-dark); }
+  label { display:block; font-size:12.5px; font-weight:600; margin:10px 0 4px; color:var(--ink); }
+  input, select, textarea { width:100%; padding:9px 10px; border:1px solid var(--input-border); background:var(--input-bg); color:var(--ink); border-radius:8px; font-size:14px; }
+  input:focus, select:focus, textarea:focus { outline:2px solid var(--accent-soft); border-color:var(--accent); }
   .row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-  .id-ok { color:#007749; font-size:12.5px; margin-top:4px; }
+  .id-ok { color:var(--ok); font-size:12.5px; margin-top:4px; }
   .id-bad { color:var(--red); font-size:12.5px; margin-top:4px; }
   .btns { display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
   button { cursor:pointer; border:0; border-radius:9px; padding:11px 16px; font-size:14px; font-weight:700; }
-  .primary { background:var(--green); color:#fff; }
-  .primary:hover { background:#005a38; }
-  .ghost { background:#eef2f0; color:#222; }
+  .primary { background:var(--accent); color:#fff; }
+  .primary:hover { filter:brightness(.9); }
+  .ghost { background:var(--ghost-bg); color:var(--ghost-ink); }
   .toggle { display:flex; align-items:center; gap:8px; margin-top:12px; font-size:13.5px; }
   .toggle input { width:auto; }
   #rawBox { display:none; }
-  .out img { max-width:100%; background:#fff; border:1px solid #ddd; border-radius:8px; }
-  .dl { display:inline-block; margin:6px 8px 12px 0; background:#111; color:#fff; text-decoration:none; padding:8px 14px; border-radius:8px; font-size:13px; font-weight:700; }
+  .out img { max-width:100%; background:#fff; border:1px solid var(--input-border); border-radius:8px; }
+  .dl { display:inline-block; margin:6px 8px 12px 0; background:var(--dl-bg); color:var(--dl-ink); text-decoration:none; padding:8px 14px; border-radius:8px; font-size:13px; font-weight:700; }
   pre.payload { background:#0e1a14; color:#d7ffe4; padding:12px; border-radius:8px; font-size:11.5px; max-height:180px; overflow:auto; word-break:break-all; white-space:pre-wrap; }
-  footer { text-align:center; font-size:12px; color:#666; padding:18px; }
-  .pill { display:inline-block; background:#e7f4ec; color:#005a38; border-radius:20px; padding:2px 10px; font-size:12px; font-weight:700; }
-  details { font-size:13px; background:#f8faf9; border:1px solid #dde5e0; border-radius:8px; padding:10px 12px; margin-top:12px; }
-  summary { cursor:pointer; font-weight:700; color:#005a38; }
-  code { background:#eef2f0; padding:1px 5px; border-radius:4px; }
+  footer { text-align:center; font-size:12px; color:var(--muted); padding:18px; }
+  .pill { display:inline-block; background:var(--accent-soft); color:var(--accent-dark); border-radius:20px; padding:2px 10px; font-size:12px; font-weight:700; }
+  details { font-size:13px; background:var(--detail-bg); border:1px solid var(--input-border); border-radius:8px; padding:10px 12px; margin-top:12px; }
+  summary { cursor:pointer; font-weight:700; color:var(--accent-dark); }
+  code { background:var(--ghost-bg); color:var(--ink); padding:1px 5px; border-radius:4px; }
 </style>
 </head>
 <body>
 <header>
   <div class="wrap">
-    <h1>🇿🇦 SA Smart ID Barcode Tool <span class="pill">TEST SPECIMENS</span></h1>
+    <h1>✨ VisualArc Editing <span class="pill">BARCODE STUDIO</span></h1>
     <p>Generate <b>Code&nbsp;39</b> (ID number) + <b>PDF417</b> (personal details) barcodes in the style of the back of the South African Smart ID Card — for testing scanners &amp; software. Field list follows the public Wikipedia description. 100% offline: nothing leaves your computer.</p>
+    <div class="themes">
+      <span style="font-size:12.5px;opacity:.9">🎨 Theme:</span>
+      <button type="button" data-t="heritage" onclick="setTheme('heritage')">🇿🇦 Heritage</button>
+      <button type="button" data-t="light" onclick="setTheme('light')">🌞 Light</button>
+      <button type="button" data-t="dark" onclick="setTheme('dark')">🌙 Dark</button>
+      <button type="button" data-t="ocean" onclick="setTheme('ocean')">🌊 Ocean</button>
+    </div>
   </div>
 </header>
 <div class="flagbar"></div>
@@ -161,7 +210,7 @@ PAGE = r"""<!DOCTYPE html>
     </p>
   </div>
 </main>
-<footer>SA Smart ID Barcode Tool • For testing &amp; education only • Runs fully offline on your machine</footer>
+<footer>VisualArc Editing • Barcode Studio • For testing &amp; education only • Runs fully offline on your machine</footer>
 <script>
 function luhnOk(idn){
   if(!/^\d{13}$/.test(idn)) return false;
@@ -242,6 +291,8 @@ async function generate(){
   }catch(e){ err.textContent="⚠ Server error: "+e; }
 }
 function copyPayload(){ navigator.clipboard.writeText(document.getElementById("payloadText").textContent); }
+function setTheme(t){ document.documentElement.setAttribute("data-theme",t); try{ localStorage.setItem("va-theme",t); }catch(e){} document.querySelectorAll(".themes button").forEach(b=>b.classList.toggle("active",b.dataset.t===t)); }
+(function(){ let t="heritage"; try{ t=localStorage.getItem("va-theme")||"heritage"; }catch(e){} setTheme(t); })();
 checkId(false);
 </script>
 </body>
@@ -311,5 +362,5 @@ def api_generate():
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    print(f"\n  SA Smart ID Barcode Tool running at http://localhost:{port}\n")
+    print(f"\n  VisualArc Editing running at http://localhost:{port}\n")
     app.run(host="0.0.0.0", port=port, debug=False)
