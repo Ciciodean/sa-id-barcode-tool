@@ -1,0 +1,11 @@
+# One-click deploy to Render.com (free tier) — GitHub alone can't run Python apps.
+services:
+  - type: web
+    name: sa-id-barcode-tool
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn web_app:app --bind 0.0.0.0:$PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.0
