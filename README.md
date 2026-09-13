@@ -69,6 +69,10 @@ Both the web app and CLI validate the check digit and auto-derive birth date/gen
 - `web_app.py` — Flask web app (single self-contained page, no internet needed)
 - `requirements.txt`, `README.md`
 
+## \U0001F4AC Help Desk
+
+The app has a Help Desk section (contact buttons + quick-fix FAQ + GitHub issues link). To let users text/WhatsApp/email you, set `SUPPORT_WHATSAPP` / `SUPPORT_SMS` / `SUPPORT_EMAIL` at the top of `web_app.py`.
+
 ## Push to GitHub
 
 ```bash

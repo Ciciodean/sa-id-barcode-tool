@@ -25,6 +25,16 @@ from sa_id_barcode import (
 
 app = Flask(__name__)
 
+# ---------------------------------------------------------------------------
+# Help desk contact details — fill these in to activate the contact buttons.
+# Use international format WITHOUT "+" for WhatsApp, e.g. "254712345678".
+# Leave a value as "" to hide that button.
+# ---------------------------------------------------------------------------
+SUPPORT_WHATSAPP = ""   # e.g. "254712345678"
+SUPPORT_SMS = ""        # e.g. "+254712345678"
+SUPPORT_EMAIL = ""      # e.g. "help@visualarc.example"
+GITHUB_ISSUES_URL = "https://github.com/Ciciodean/sa-id-barcode-tool/issues"
+
 PAGE = r"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -126,6 +136,7 @@ PAGE = r"""<!DOCTYPE html>
       <button type="button" data-t="light" onclick="setTheme('light')">🌞 Light</button>
       <button type="button" data-t="dark" onclick="setTheme('dark')">🌙 Dark</button>
       <button type="button" data-t="ocean" onclick="setTheme('ocean')">🌊 Ocean</button>
+      <a href="#help" style="color:#fff;font-size:12.5px;font-weight:700;margin-left:4px">💬 Help</a>
     </div>
   </div>
 </header>
@@ -212,6 +223,7 @@ PAGE = r"""<!DOCTYPE html>
       <div><button class="ghost" onclick="copyPayload()">📋 Copy text</button></div>
     </section>
   </div>
+  <!--HELP_DESK-->
   <div class="card" style="margin-top:16px">
     <h2>ℹ️ About these barcodes</h2>
     <p style="font-size:13.5px;line-height:1.6;margin:0">
@@ -329,9 +341,54 @@ checkId(false);
 """
 
 
+def _help_desk_html() -> str:
+    """Build the Help Desk card (only shows buttons for configured channels)."""
+    prefill = "Hi%20VisualArc%20Editing!%20I%20need%20help%20with%20the%20barcode%20tool."
+    buttons = []
+    if SUPPORT_WHATSAPP:
+        buttons.append(
+            '<a class="dl" style="background:#25D366" target="_blank" rel="noopener" '
+            f'href="https://wa.me/{SUPPORT_WHATSAPP}?text={prefill}">'
+            "\U0001F4AC WhatsApp us</a>"
+        )
+    if SUPPORT_SMS:
+        buttons.append(
+            '<a class="dl" style="background:#0b5fff" '
+            f'href="sms:{SUPPORT_SMS}?body={prefill}">'
+            "\U0001F4F1 Text us (SMS)</a>"
+        )
+    if SUPPORT_EMAIL:
+        buttons.append(
+            '<a class="dl" '
+            f'href="mailto:{SUPPORT_EMAIL}?subject=VisualArc%20Editing%20help%20needed&body={prefill}">'
+            "\U0001F4E7 Email us</a>"
+        )
+    buttons.append(
+        '<a class="dl" style="background:#6e5494" target="_blank" rel="noopener" '
+        f'href="{GITHUB_ISSUES_URL}">\U0001F41E Report an issue on GitHub</a>'
+    )
+    return (
+        '<div class="card" id="help" style="margin-top:16px">'
+        "<h2>\U0001F4AC Help Desk \u2014 having issues?</h2>"
+        '<p style="font-size:13.5px;line-height:1.6;margin:0 0 6px">'
+        "Found a bug, a barcode won\u2019t scan, or something looks wrong? Reach out and we\u2019ll help you out. "
+        "Please include <b>what you clicked</b>, <b>what you expected</b>, and a <b>screenshot</b> if you can.</p>"
+        "<div>" + "".join(buttons) + "</div>"
+        "<details><summary>Quick fixes before you message us</summary>"
+        "<p><b>\u2717 Invalid ID number?</b> The last digit is a calculated check digit \u2014 don\u2019t invent numbers. "
+        "Use the \U0001F382 birth-date generator or \U0001F3B2 Random valid ID button instead.</p>"
+        "<p><b>Barcode won\u2019t scan?</b> Download the PNG and scan at 100% size. Turn the TEST banner off "
+        "for a clean symbol, and raise PDF417 error correction to 4\u20135 for rough prints.</p>"
+        "<p><b>First load is slow?</b> The free hosting sleeps after 15 idle minutes \u2014 the first visit takes "
+        "30\u201360 seconds to wake up. Just wait and refresh.</p>"
+        "<p><b>Need no white background?</b> Set Image background to \U0001F532 Transparent before generating.</p>"
+        "</details></div>"
+    )
+
+
 @app.get("/")
 def index():
-    return render_template_string(PAGE)
+    return render_template_string(PAGE.replace("<!--HELP_DESK-->", _help_desk_html()))
 
 
 @app.post("/api/generate")
