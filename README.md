@@ -71,7 +71,7 @@ Both the web app and CLI validate the check digit and auto-derive birth date/gen
 
 ## \U0001F4AC Help Desk
 
-The app has a Help Desk section (contact buttons + quick-fix FAQ + GitHub issues link). To let users text/WhatsApp/email you, set `SUPPORT_WHATSAPP` / `SUPPORT_SMS` / `SUPPORT_EMAIL` at the top of `web_app.py`.
+The app has a Help Desk section (contact buttons + quick-fix FAQ + GitHub issues link). To let users reach you, set `SUPPORT_WHATSAPP` / `SUPPORT_TELEGRAM` / `SUPPORT_SMS` / `SUPPORT_EMAIL` at the top of `web_app.py`.
 
 ## Push to GitHub
 

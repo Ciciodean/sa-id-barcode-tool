@@ -31,6 +31,7 @@ app = Flask(__name__)
 # Leave a value as "" to hide that button.
 # ---------------------------------------------------------------------------
 SUPPORT_WHATSAPP = ""   # e.g. "254712345678"
+SUPPORT_TELEGRAM = "https://t.me/visualarcediting"  # Telegram channel/group link
 SUPPORT_SMS = ""        # e.g. "+254712345678"
 SUPPORT_EMAIL = ""      # e.g. "help@visualarc.example"
 GITHUB_ISSUES_URL = "https://github.com/Ciciodean/sa-id-barcode-tool/issues"
@@ -350,6 +351,12 @@ def _help_desk_html() -> str:
             '<a class="dl" style="background:#25D366" target="_blank" rel="noopener" '
             f'href="https://wa.me/{SUPPORT_WHATSAPP}?text={prefill}">'
             "\U0001F4AC WhatsApp us</a>"
+        )
+    if SUPPORT_TELEGRAM:
+        buttons.append(
+            '<a class="dl" style="background:#229ED9" target="_blank" rel="noopener" '
+            f'href="{SUPPORT_TELEGRAM}">'
+            "\u2708\ufe0f Telegram us</a>"
         )
     if SUPPORT_SMS:
         buttons.append(
