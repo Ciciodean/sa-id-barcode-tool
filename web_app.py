@@ -109,6 +109,10 @@ PAGE = r"""<!DOCTYPE html>
   details { font-size:13px; background:var(--detail-bg); border:1px solid var(--input-border); border-radius:8px; padding:10px 12px; margin-top:12px; }
   summary { cursor:pointer; font-weight:700; color:var(--accent-dark); }
   code { background:var(--ghost-bg); color:var(--ink); padding:1px 5px; border-radius:4px; }
+  .idgen { display:flex; gap:8px; flex-wrap:wrap; align-items:center; background:var(--detail-bg); border:1px dashed var(--input-border); border-radius:8px; padding:8px 10px; margin-top:8px; font-size:12.5px; }
+  .idgen input, .idgen select { width:auto; flex:1; min-width:110px; padding:7px 8px; font-size:13px; }
+  .idgen button { padding:8px 12px; font-size:13px; }
+  .out img.trans { background:repeating-conic-gradient(#c9c9c9 0 25%, #ffffff 0 50%) 0 0/18px 18px; }
 </style>
 </head>
 <body>
@@ -141,6 +145,12 @@ PAGE = r"""<!DOCTYPE html>
         <button class="ghost" type="button" onclick="makeTestId()" title="Create a random valid test ID number" style="white-space:nowrap">🎲 Random valid ID</button>
       </div>
       <div id="idMsg" class="id-ok"></div>
+      <div class="idgen">
+        <span>🎂 Don’t have an ID number? Generate one from a birth date:</span>
+        <input type="date" id="genDob" value="2004-02-25" min="1900-01-01" max="2026-12-31">
+        <select id="genGender"><option value="F">Female</option><option value="M" selected>Male</option></select>
+        <button class="ghost" type="button" onclick="makeIdFromDob()">Generate ID</button>
+      </div>
       <div class="row">
         <div><label for="surname">Surname *</label><input id="surname" value="DUBE"></div>
         <div><label for="names">Full names *</label><input id="names" value="THABO SIPHO"></div>
@@ -175,6 +185,8 @@ PAGE = r"""<!DOCTYPE html>
         <div><label for="scale">Image scale (1–6)</label><input id="scale" type="number" min="1" max="6" value="3"></div>
         <div><label for="filler">Filler chars (0–1200)</label><input id="filler" type="number" min="0" max="1200" value="600"></div>
       </div>
+      <label for="bg">Image background (applies to downloads)</label>
+      <select id="bg"><option value="white">⬜ White</option><option value="transparent">🔲 Transparent — no background</option></select>
       <label class="toggle"><input type="checkbox" id="banner" checked> Add red <b>TEST SPECIMEN</b> banner under barcodes (recommended)</label>
       <div class="btns">
         <button class="primary" onclick="generate()">⚙️ Generate barcodes</button>
@@ -250,16 +262,29 @@ function fillSample(){
   checkId(false);
 }
 function clearAll(){ ["surname","names","dob","issue","security","card"].forEach(id=>document.getElementById(id).value=""); document.getElementById("id_number").value=""; checkId(false); }
-function makeTestId(){
-  const y=1960+Math.floor(Math.random()*46), m=1+Math.floor(Math.random()*12), d=1+Math.floor(Math.random()*28);
-  const female=Math.random()<0.5;
-  const seq=female?Math.floor(Math.random()*5000):5000+Math.floor(Math.random()*5000);
-  const partial=String(y).slice(2)+String(m).padStart(2,"0")+String(d).padStart(2,"0")+String(seq).padStart(4,"0")+"08";
+function luhnCheck(partial){
   let odd=0; for(let i=0;i<12;i+=2) odd+=+partial[i];
   let evenStr=""; for(let i=1;i<12;i+=2) evenStr+=partial[i];
   let evenSum=String(+evenStr*2).split("").reduce((a,c)=>a+ +c,0);
-  const check=String((10-((odd+evenSum)%10))%10);
-  document.getElementById("id_number").value=partial+check;
+  return String((10-((odd+evenSum)%10))%10);
+}
+function buildId(yy,mm,dd,female){
+  const seq=female?Math.floor(Math.random()*5000):5000+Math.floor(Math.random()*5000);
+  const partial=yy+mm+dd+String(seq).padStart(4,"0")+"08";
+  return partial+luhnCheck(partial);
+}
+function makeTestId(){
+  const y=1960+Math.floor(Math.random()*46), m=1+Math.floor(Math.random()*12), d=1+Math.floor(Math.random()*28);
+  document.getElementById("id_number").value=buildId(String(y).slice(2),String(m).padStart(2,"0"),String(d).padStart(2,"0"),Math.random()<0.5);
+  checkId(true);
+}
+function makeIdFromDob(){
+  const v=document.getElementById("genDob").value;
+  const m=document.getElementById("idMsg");
+  if(!v||!/^\d{4}-\d{2}-\d{2}$/.test(v)){ m.className="id-bad"; m.textContent="Pick a birth date first (click the calendar)."; return; }
+  const p=v.split("-");
+  const female=document.getElementById("genGender").value==="F";
+  document.getElementById("id_number").value=buildId(p[0].slice(2),p[1],p[2],female);
   checkId(true);
 }
 async function generate(){
@@ -274,7 +299,8 @@ async function generate(){
     raw_mode:document.getElementById("rawMode").checked, raw:document.getElementById("raw").value,
     pdf_columns:+document.getElementById("cols").value, pdf_security:+document.getElementById("sec").value,
     pdf_scale:+document.getElementById("scale").value, filler:+document.getElementById("filler").value,
-    banner:document.getElementById("banner").checked
+    banner:document.getElementById("banner").checked,
+    transparent:document.getElementById("bg").value==="transparent"
   };
   try{
     const r=await fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
@@ -282,6 +308,9 @@ async function generate(){
     if(!j.ok){ err.textContent="⚠ "+j.errors.join(" "); return; }
     document.getElementById("img39").src="data:image/png;base64,"+j.code39;
     document.getElementById("img417").src="data:image/png;base64,"+j.pdf417;
+    const tr=document.getElementById("bg").value==="transparent";
+    document.getElementById("img39").classList.toggle("trans",tr);
+    document.getElementById("img417").classList.toggle("trans",tr);
     document.getElementById("dl39").href="data:image/png;base64,"+j.code39;
     document.getElementById("dl39").download="code39_"+body.id_number+".png";
     document.getElementById("dl417").href="data:image/png;base64,"+j.pdf417;
@@ -344,6 +373,7 @@ def api_generate():
             pdf_security=int(b.get("pdf_security", 3) or 0),
             pdf_scale=int(b.get("pdf_scale", 3) or 3),
             add_test_banner=bool(b.get("banner", True)),
+            transparent=bool(b.get("transparent", False)),
         )
         def b64(img) -> str:
             buf = io.BytesIO()

@@ -27,6 +27,8 @@ python3 web_app.py
 
 Open http://localhost:5000 — fill in the form, generate, and download the PNGs. Everything runs offline on your machine.
 
+The form can **generate a valid test ID number from any birth date + gender**, and downloads can use a **white or transparent background**.
+
 ## Option B — Python script (CLI)
 
 ```bash
@@ -43,6 +45,9 @@ python3 sa_id_barcode_tool.py --surname DUBE --names "THABO SIPHO" --sex M \
 
 # Fully custom PDF417 content:
 python3 sa_id_barcode_tool.py --id-number 8001015000086 --raw "HELLO|WORLD|123"
+
+# Transparent-background PNGs (no white):
+python3 sa_id_barcode_tool.py --id-number 8001015000086 --transparent --out ./output
 ```
 
 Outputs: `code39_<ID>.png`, `pdf417_<ID>.png`, `payload_<ID>.txt`.

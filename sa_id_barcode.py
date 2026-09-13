@@ -149,7 +149,8 @@ class SmartIDData:
 # Barcode rendering (Pillow images)
 # ---------------------------------------------------------------------------
 
-def render_code39(id_number: str, add_test_banner: bool = True):
+def render_code39(id_number: str, add_test_banner: bool = True,
+                  transparent: bool = False):
     """Render the Code 39 barcode image for the ID number."""
     from barcode import Code39
     from barcode.writer import ImageWriter
@@ -165,13 +166,16 @@ def render_code39(id_number: str, add_test_banner: bool = True):
     })
     code = Code39(id_number.strip(), writer=writer, add_checksum=False)
     img = code.render()
+    if transparent:
+        img = _to_transparent(img)
     if add_test_banner:
         img = _add_banner(img, "TEST SPECIMEN — NOT AN OFFICIAL DOCUMENT")
     return img
 
 
 def render_pdf417(payload: str, columns: int = 8, security_level: int = 3,
-                  scale: int = 3, add_test_banner: bool = True):
+                  scale: int = 3, add_test_banner: bool = True,
+                  transparent: bool = False):
     """Render the PDF417 barcode image for the given payload string."""
     from pdf417gen import encode, render_image
 
@@ -180,8 +184,18 @@ def render_pdf417(payload: str, columns: int = 8, security_level: int = 3,
     codes = encode(payload, columns=columns, security_level=security_level)
     img = render_image(codes, scale=scale, ratio=3, padding=12)
     img = img.convert("RGB")
+    if transparent:
+        img = _to_transparent(img)
     if add_test_banner:
         img = _add_banner(img, "TEST SPECIMEN — NOT AN OFFICIAL DOCUMENT")
+    return img
+
+
+def _to_transparent(img):
+    """Make near-white pixels transparent (bars/text stay). Returns RGBA."""
+    img = img.convert("RGBA")
+    mask = img.convert("L").point(lambda v: 0 if v >= 250 else 255, mode="L")
+    img.putalpha(mask)
     return img
 
 
@@ -199,8 +213,12 @@ def _add_banner(img, text: str):
         except Exception:
             font = ImageFont.load_default()
     strip_h = size + 22
-    new = Image.new("RGB", (img.width, img.height + strip_h), "white")
-    new.paste(img, (0, 0))
+    if img.mode == "RGBA":
+        new = Image.new("RGBA", (img.width, img.height + strip_h), (0, 0, 0, 0))
+        new.paste(img, (0, 0), img)
+    else:
+        new = Image.new("RGB", (img.width, img.height + strip_h), "white")
+        new.paste(img, (0, 0))
     draw = ImageDraw.Draw(new)
     draw.rectangle([0, img.height, img.width, img.height + strip_h], fill=(178, 34, 34))
     bbox = draw.textbbox((0, 0), text, font=font)
@@ -221,11 +239,12 @@ def image_to_png_bytes(img) -> bytes:
 
 def generate_pair(data: SmartIDData, raw_payload: str | None = None,
                   pdf_columns: int = 8, pdf_security: int = 3,
-                  pdf_scale: int = 3, add_test_banner: bool = True) -> dict:
+                  pdf_scale: int = 3, add_test_banner: bool = True,
+                  transparent: bool = False) -> dict:
     """Generate both barcodes. Returns dict with PIL images + payload text."""
     data.clean()
     payload = raw_payload if raw_payload else data.pdf417_payload()
-    code39_img = render_code39(data.id_number, add_test_banner)
+    code39_img = render_code39(data.id_number, add_test_banner, transparent)
     pdf417_img = render_pdf417(payload, pdf_columns, pdf_security,
-                               pdf_scale, add_test_banner)
+                               pdf_scale, add_test_banner, transparent)
     return {"code39": code39_img, "pdf417": pdf417_img, "payload": payload}

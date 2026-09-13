@@ -89,6 +89,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--pdf-security", type=int, default=3)
     p.add_argument("--pdf-scale", type=int, default=3)
     p.add_argument("--no-banner", action="store_true", help="Omit the TEST SPECIMEN banner")
+    p.add_argument("--transparent", action="store_true", help="Transparent background (no white) in PNGs")
     p.add_argument("--out", default="./output", help="Output folder for PNG files")
     return p
 
@@ -135,6 +136,7 @@ def main() -> int:
         data, raw_payload=raw,
         pdf_columns=args.pdf_columns, pdf_security=args.pdf_security,
         pdf_scale=args.pdf_scale, add_test_banner=not args.no_banner,
+        transparent=args.transparent,
     )
 
     os.makedirs(args.out, exist_ok=True)
