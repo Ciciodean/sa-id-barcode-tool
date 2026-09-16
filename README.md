@@ -27,7 +27,7 @@ python3 web_app.py
 
 Open http://localhost:5000 — fill in the form, generate, and download the PNGs. Everything runs offline on your machine.
 
-The form can **generate a valid test ID number from any birth date + gender**, and downloads can use a **white or transparent background**.
+The form can **generate a valid test ID number from any birth date + gender**, and downloads use a **transparent background by default** (white optional).
 
 ## Option B — Python script (CLI)
 

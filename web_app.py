@@ -198,7 +198,7 @@ PAGE = r"""<!DOCTYPE html>
         <div><label for="filler">Filler chars (0–1200)</label><input id="filler" type="number" min="0" max="1200" value="600"></div>
       </div>
       <label for="bg">Image background (applies to downloads)</label>
-      <select id="bg"><option value="white">⬜ White</option><option value="transparent">🔲 Transparent — no background</option></select>
+      <select id="bg"><option value="transparent" selected>🔲 Transparent — no background</option><option value="white">⬜ White</option></select>
       <label class="toggle"><input type="checkbox" id="banner" checked> Add red <b>TEST SPECIMEN</b> banner under barcodes (recommended)</label>
       <div class="btns">
         <button class="primary" onclick="generate()">⚙️ Generate barcodes</button>
